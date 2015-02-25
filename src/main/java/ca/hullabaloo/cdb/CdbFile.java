@@ -1,5 +1,6 @@
 package ca.hullabaloo.cdb;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -14,7 +15,7 @@ import java.nio.channels.FileChannel;
  * @see Cdb
  * @see CdbBuilder
  */
-class CdbFile {
+class CdbFile implements Closeable {
   private static final int INTEGER_BYTES = Integer.SIZE / Byte.SIZE;
   private static final int SLOT_BYTES = INTEGER_BYTES * 2;
 
@@ -150,5 +151,10 @@ class CdbFile {
     ByteBuffer bb = this.data.duplicate();
     bb.order(this.data.order());
     return bb;
+  }
+
+  public void close() {
+    // TODO: mark as closed.
+    ByteBufferCleaner.cleanMapping(this.data);
   }
 }
