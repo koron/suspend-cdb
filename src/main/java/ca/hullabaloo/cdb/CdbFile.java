@@ -8,6 +8,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The implementation of the read-side of a CDB file.
@@ -153,8 +157,23 @@ class CdbFile implements Closeable {
     return bb;
   }
 
+  private static final ScheduledExecutorService CLEANER = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread thread = new Thread(r);
+      thread.setName(CdbFile.class.getSimpleName() + "-cleaner");
+      thread.setDaemon(true);
+      return thread;
+    }
+  });
+
   public void close() {
     // TODO: mark as closed.
-    ByteBufferCleaner.cleanMapping(this.data);
+    CLEANER.schedule(new Runnable() {
+      @Override
+      public void run() {
+        ByteBufferCleaner.cleanMapping(CdbFile.this.data);
+      }
+    }, 1000, TimeUnit.MILLISECONDS);
   }
 }
