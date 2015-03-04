@@ -38,6 +38,12 @@ public class Cdb {
     return new CdbMap(new CdbFile(file));
   }
 
+  public static void close(Map<ByteBuffer, ByteBuffer> map) throws IOException {
+    if (map instanceof CdbMap) {
+      ((CdbMap)map).close();
+    }
+  }
+
   public interface Builder extends Closeable {
     public void put(ByteBuffer key, ByteBuffer value) throws IOException;
 
