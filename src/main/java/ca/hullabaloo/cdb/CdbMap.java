@@ -92,7 +92,7 @@ class CdbMap extends AbstractMap<ByteBuffer, ByteBuffer> {
     }
   }
 
-  public void close() {
+  void closeCdbFile() {
     // TODO: mark as closed.
     this.file.close();
   }

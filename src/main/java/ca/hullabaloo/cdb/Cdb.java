@@ -40,7 +40,7 @@ public class Cdb {
 
   public static void close(Map<ByteBuffer, ByteBuffer> map) throws IOException {
     if (map instanceof CdbMap) {
-      ((CdbMap)map).close();
+      ((CdbMap)map).closeCdbFile();
     }
   }
 
