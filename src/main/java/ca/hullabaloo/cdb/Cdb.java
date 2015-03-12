@@ -38,6 +38,9 @@ public class Cdb {
     return new CdbMap(new CdbFile(file));
   }
 
+  /**
+   * Close a map which opened by Cdb#open.
+   */
   public static void close(Map<ByteBuffer, ByteBuffer> map) throws IOException {
     if (map instanceof CdbMap) {
       ((CdbMap)map).closeCdbFile();
