@@ -1,5 +1,6 @@
 package ca.hullabaloo.cdb;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -7,6 +8,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The implementation of the read-side of a CDB file.
@@ -14,7 +19,7 @@ import java.nio.channels.FileChannel;
  * @see Cdb
  * @see CdbBuilder
  */
-class CdbFile {
+class CdbFile implements Closeable {
   private static final int INTEGER_BYTES = Integer.SIZE / Byte.SIZE;
   private static final int SLOT_BYTES = INTEGER_BYTES * 2;
 
@@ -154,6 +159,26 @@ class CdbFile {
     ByteBuffer bb = this.data.duplicate();
     bb.order(this.data.order());
     return bb;
+  }
+
+  private static final ScheduledExecutorService CLEANER = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+    @Override
+    public Thread newThread(Runnable r) {
+      Thread thread = new Thread(r);
+      thread.setName(CdbFile.class.getSimpleName() + "-cleaner");
+      thread.setDaemon(true);
+      return thread;
+    }
+  });
+
+  public void close() {
+    // TODO: mark as closed.
+    CLEANER.schedule(new Runnable() {
+      @Override
+      public void run() {
+        ByteBufferCleaner.cleanMapping(CdbFile.this.data);
+      }
+    }, 1000, TimeUnit.MILLISECONDS);
   }
 }
 

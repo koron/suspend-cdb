@@ -91,4 +91,9 @@ class CdbMap extends AbstractMap<ByteBuffer, ByteBuffer> {
       throw new UnsupportedOperationException();
     }
   }
+
+  void closeCdbFile() {
+    // TODO: mark as closed.
+    this.file.close();
+  }
 }
