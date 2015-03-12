@@ -60,7 +60,11 @@ class CdbFile {
 
   CdbFile(File file) throws IOException {
     FileChannel source = new RandomAccessFile(file, "r").getChannel();
-    this.data = source.map(FileChannel.MapMode.READ_ONLY, 0, source.size());
+    try {
+      this.data = source.map(FileChannel.MapMode.READ_ONLY, 0, source.size());
+    } finally {
+      source.close();
+    }
     this.data.order(ByteOrder.LITTLE_ENDIAN);
     this.header = new int[512];
     this.data.asIntBuffer().get(this.header);
@@ -152,3 +156,5 @@ class CdbFile {
     return bb;
   }
 }
+
+// vim:set sts=2 sw=2 tw=0 et:
