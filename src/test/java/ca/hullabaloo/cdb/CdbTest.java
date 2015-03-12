@@ -31,7 +31,11 @@ public class CdbTest {
     Cdb.Builder b = Cdb.builder(f);
     b.close();
     Map<ByteBuffer, ByteBuffer> m = Cdb.open(f);
-    m.get(ByteBuffer.wrap(DUMMY_KEY));
+    try {
+      m.get(ByteBuffer.wrap(DUMMY_KEY));
+    } finally {
+      Cdb.close(m);
+    }
   }
 }
 
